@@ -1,65 +1,38 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
-const methods = require('methods');
-const http = require('http');
-let http2;
-try {
-  http2 = require('http2'); // eslint-disable-line global-require
-} catch (_) {
-  // eslint-disable-line no-empty
-}
-const Test = require('./lib/test.js');
-const agent = require('./lib/agent.js');
+const PersistentFile = require('./PersistentFile');
+const VolatileFile = require('./VolatileFile');
+const Formidable = require('./Formidable');
+const FormidableError = require('./FormidableError');
 
-/**
- * Test against the given `app`,
- * returning a new `Test`.
- *
- * @param {Function|Server|String} app
- * @return {Test}
- * @api public
- */
-module.exports = function(app, options = {}) {
-  const obj = {};
+const plugins = require('./plugins/index');
+const parsers = require('./parsers/index');
 
-  if (typeof app === 'function') {
-    if (options.http2) {
-      if (!http2) {
-        throw new Error(
-          'supertest: this version of Node.js does not support http2'
-        );
-      }
-      app = http2.createServer(app); // eslint-disable-line no-param-reassign
-    } else {
-      app = http.createServer(app); // eslint-disable-line no-param-reassign
-    }
-  }
+// make it available without requiring the `new` keyword
+// if you want it access `const formidable.IncomingForm` as v1
+const formidable = (...args) => new Formidable(...args);
 
-  methods.forEach(function(method) {
-    obj[method] = function(url) {
-      var test = new Test(app, method, url);
-      if (options.http2) {
-        test.http2();
-      }
-      return test;
-    };
-  });
+module.exports = Object.assign(formidable, {
+  errors: FormidableError,
+  File: PersistentFile,
+  PersistentFile,
+  VolatileFile,
+  Formidable,
+  formidable,
 
-  // Support previous use of del
-  obj.del = obj.delete;
+  // alias
+  IncomingForm: Formidable,
 
-  return obj;
-};
+  // parsers
+  ...parsers,
+  parsers,
 
-/**
- * Expose `Test`
- */
-module.exports.Test = Test;
+  // misc
+  defaultOptions: Formidable.DEFAULT_OPTIONS,
+  enabledPlugins: Formidable.DEFAULT_OPTIONS.enabledPlugins,
 
-/**
- * Expose the agent function
- */
-module.exports.agent = agent;
+  // plugins
+  plugins: {
+    ...plugins,
+  },
+});

@@ -1,25 +1,38 @@
-"use strict";
+/* eslint-disable no-underscore-dangle */
 
-module.exports = function (res, fn) {
-  res.text = '';
-  res.setEncoding('utf8');
-  res.on('data', chunk => {
-    res.text += chunk;
-  });
-  res.on('end', () => {
-    let body;
-    let error;
-    try {
-      body = res.text && JSON.parse(res.text);
-    } catch (err) {
-      error = err;
-      // issue #675: return the raw response if the response parsing fails
-      error.rawResponse = res.text || null;
-      // issue #876: return the http status code if the response parsing fails
-      error.statusCode = res.statusCode;
-    } finally {
-      fn(error, body);
-    }
-  });
+'use strict';
+
+const JSONParser = require('../parsers/JSON');
+
+// the `options` is also available through the `this.options` / `formidable.options`
+module.exports = function plugin(formidable, options) {
+  // the `this` context is always formidable, as the first argument of a plugin
+  // but this allows us to customize/test each plugin
+
+  /* istanbul ignore next */
+  const self = this || formidable;
+
+  if (/json/i.test(self.headers['content-type'])) {
+    init.call(self, self, options);
+  }
 };
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJtb2R1bGUiLCJleHBvcnRzIiwicmVzIiwiZm4iLCJ0ZXh0Iiwic2V0RW5jb2RpbmciLCJvbiIsImNodW5rIiwiYm9keSIsImVycm9yIiwiSlNPTiIsInBhcnNlIiwiZXJyIiwicmF3UmVzcG9uc2UiLCJzdGF0dXNDb2RlIl0sInNvdXJjZXMiOlsiLi4vLi4vLi4vc3JjL25vZGUvcGFyc2Vycy9qc29uLmpzIl0sInNvdXJjZXNDb250ZW50IjpbIm1vZHVsZS5leHBvcnRzID0gZnVuY3Rpb24gKHJlcywgZm4pIHtcbiAgcmVzLnRleHQgPSAnJztcbiAgcmVzLnNldEVuY29kaW5nKCd1dGY4Jyk7XG4gIHJlcy5vbignZGF0YScsIChjaHVuaykgPT4ge1xuICAgIHJlcy50ZXh0ICs9IGNodW5rO1xuICB9KTtcbiAgcmVzLm9uKCdlbmQnLCAoKSA9PiB7XG4gICAgbGV0IGJvZHk7XG4gICAgbGV0IGVycm9yO1xuICAgIHRyeSB7XG4gICAgICBib2R5ID0gcmVzLnRleHQgJiYgSlNPTi5wYXJzZShyZXMudGV4dCk7XG4gICAgfSBjYXRjaCAoZXJyKSB7XG4gICAgICBlcnJvciA9IGVycjtcbiAgICAgIC8vIGlzc3VlICM2NzU6IHJldHVybiB0aGUgcmF3IHJlc3BvbnNlIGlmIHRoZSByZXNwb25zZSBwYXJzaW5nIGZhaWxzXG4gICAgICBlcnJvci5yYXdSZXNwb25zZSA9IHJlcy50ZXh0IHx8IG51bGw7XG4gICAgICAvLyBpc3N1ZSAjODc2OiByZXR1cm4gdGhlIGh0dHAgc3RhdHVzIGNvZGUgaWYgdGhlIHJlc3BvbnNlIHBhcnNpbmcgZmFpbHNcbiAgICAgIGVycm9yLnN0YXR1c0NvZGUgPSByZXMuc3RhdHVzQ29kZTtcbiAgICB9IGZpbmFsbHkge1xuICAgICAgZm4oZXJyb3IsIGJvZHkpO1xuICAgIH1cbiAgfSk7XG59O1xuIl0sIm1hcHBpbmdzIjoiOztBQUFBQSxNQUFNLENBQUNDLE9BQU8sR0FBRyxVQUFVQyxHQUFHLEVBQUVDLEVBQUUsRUFBRTtFQUNsQ0QsR0FBRyxDQUFDRSxJQUFJLEdBQUcsRUFBRTtFQUNiRixHQUFHLENBQUNHLFdBQVcsQ0FBQyxNQUFNLENBQUM7RUFDdkJILEdBQUcsQ0FBQ0ksRUFBRSxDQUFDLE1BQU0sRUFBR0MsS0FBSyxJQUFLO0lBQ3hCTCxHQUFHLENBQUNFLElBQUksSUFBSUcsS0FBSztFQUNuQixDQUFDLENBQUM7RUFDRkwsR0FBRyxDQUFDSSxFQUFFLENBQUMsS0FBSyxFQUFFLE1BQU07SUFDbEIsSUFBSUUsSUFBSTtJQUNSLElBQUlDLEtBQUs7SUFDVCxJQUFJO01BQ0ZELElBQUksR0FBR04sR0FBRyxDQUFDRSxJQUFJLElBQUlNLElBQUksQ0FBQ0MsS0FBSyxDQUFDVCxHQUFHLENBQUNFLElBQUksQ0FBQztJQUN6QyxDQUFDLENBQUMsT0FBT1EsR0FBRyxFQUFFO01BQ1pILEtBQUssR0FBR0csR0FBRztNQUNYO01BQ0FILEtBQUssQ0FBQ0ksV0FBVyxHQUFHWCxHQUFHLENBQUNFLElBQUksSUFBSSxJQUFJO01BQ3BDO01BQ0FLLEtBQUssQ0FBQ0ssVUFBVSxHQUFHWixHQUFHLENBQUNZLFVBQVU7SUFDbkMsQ0FBQyxTQUFTO01BQ1JYLEVBQUUsQ0FBQ00sS0FBSyxFQUFFRCxJQUFJLENBQUM7SUFDakI7RUFDRixDQUFDLENBQUM7QUFDSixDQUFDIn0=
+
+// Note that it's a good practice (but it's up to you) to use the `this.options` instead
+// of the passed `options` (second) param, because when you decide
+// to test the plugin you can pass custom `this` context to it (and so `this.options`)
+function init(_self, _opts) {
+  this.type = 'json';
+
+  const parser = new JSONParser(this.options);
+
+  parser.on('data', ({ key, value }) => {
+    this.emit('field', key, value);
+  });
+
+  parser.once('end', () => {
+    this.ended = true;
+    this._maybeEnd();
+  });
+
+  this._parser = parser;
+}

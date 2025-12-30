@@ -1,61 +1,41 @@
+/**
+ * Logger utility for real-time service
+ */
+
 import winston from 'winston';
 
-// Create logger instance
+const logLevel = process.env.LOG_LEVEL || 'info';
+const nodeEnv = process.env.NODE_ENV || 'development';
+
 export const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
+  level: logLevel,
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
     winston.format.json()
   ),
-  defaultMeta: { service: 'billing-service' },
+  defaultMeta: { service: 'realtime-service' },
   transports: [
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      )
+    new winston.transports.File({ 
+      filename: 'logs/error.log', 
+      level: 'error',
+      maxsize: 5242880, // 5MB
+      maxFiles: 5
+    }),
+    new winston.transports.File({ 
+      filename: 'logs/combined.log',
+      maxsize: 5242880, // 5MB
+      maxFiles: 5
     })
   ]
 });
 
-// Billing-specific logging functions
-export const logSubscriptionEvent = (event: string, subscriptionId: string, metadata?: any) => {
-  logger.info('Subscription event', {
-    event,
-    subscriptionId,
-    ...metadata,
-    timestamp: new Date().toISOString(),
-  });
-};
-
-export const logUsageEvent = (event: string, subscriptionId: string, usageType: string, quantity: number, metadata?: any) => {
-  logger.info('Usage event', {
-    event,
-    subscriptionId,
-    usageType,
-    quantity,
-    ...metadata,
-    timestamp: new Date().toISOString(),
-  });
-};
-
-export const logPaymentEvent = (event: string, customerId?: string, subscriptionId?: string, metadata?: any) => {
-  logger.info('Payment event', {
-    event,
-    customerId,
-    subscriptionId,
-    ...metadata,
-    timestamp: new Date().toISOString(),
-  });
-};
-
-export const logBillingError = (error: Error, context: string, metadata?: any) => {
-  logger.error('Billing error', {
-    error: error.message,
-    stack: error.stack,
-    context,
-    ...metadata,
-    timestamp: new Date().toISOString(),
-  });
-};
+// Add console transport for development
+if (nodeEnv !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.simple()
+    )
+  }));
+}
