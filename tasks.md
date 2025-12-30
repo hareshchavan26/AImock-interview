@@ -1,346 +1,244 @@
-# Implementation Plan: AI Mock Interview Platform
+# Implementation Plan: Platform Critical Fixes
 
 ## Overview
 
-This implementation plan breaks down the AI Mock Interview Platform into discrete, manageable coding tasks. The approach follows a microservices architecture with TypeScript for both frontend and backend services, emphasizing incremental development with early validation through testing.
-
-The implementation prioritizes core functionality first (authentication, basic interviews, analysis) before adding advanced features (multi-modal analysis, advanced reporting). Each major component includes both implementation and testing tasks to ensure correctness throughout development.
+This implementation plan addresses critical functionality issues in the AI Mock Interview Platform by implementing secure OAuth authentication, robust media device handling, intelligent AI chat responses, and high-accuracy speech recognition using TypeScript and Next.js.
 
 ## Tasks
 
-- [x] 1. Project Setup and Core Infrastructure
-  - Set up monorepo structure with TypeScript configuration
-  - Configure build tools, linting, and testing frameworks (Jest, fast-check)
-  - Set up Docker containers for development environment
-  - Configure PostgreSQL, Redis, and basic API gateway
-  - _Requirements: Foundation for all other requirements_
+- [ ] 1. Set up OAuth authentication infrastructure
+  - Create OAuth service with PKCE implementation
+  - Set up environment variables for Google and GitHub OAuth
+  - Implement secure token storage and management
+  - _Requirements: 1.1, 1.2, 1.3, 8.1, 8.2_
 
-- [x]* 1.1 Write property test for project configuration
-  - **Property 1: Build system consistency**
-  - **Validates: Requirements: Infrastructure foundation**
+- [ ]* 1.1 Write property tests for OAuth security
+  - **Property 1: OAuth Redirect Consistency**
+  - **Property 4: PKCE Security Implementation**
+  - **Validates: Requirements 1.1, 1.2, 8.1**
 
-- [x] 2. Authentication Service Implementation
-  - [x] 2.1 Implement core authentication interfaces and models
-    - Create User, Session, and AuthResult TypeScript interfaces
-    - Implement JWT token generation and validation
-    - Set up password hashing with bcrypt
-    - _Requirements: 1.5, 1.7, 8.5_
+- [ ] 2. Implement Google OAuth integration
+  - Create Google OAuth provider configuration
+  - Implement authorization URL generation with PKCE
+  - Handle OAuth callback and token exchange
+  - Integrate with existing user authentication system
+  - _Requirements: 1.1, 1.3, 8.3_
 
-  - [x]* 2.2 Write property test for authentication security
-    - **Property 1: Authentication Security Communication**
-    - **Validates: Requirements 1.2, 1.3, 1.4**
+- [ ]* 2.1 Write property tests for Google OAuth flow
+  - **Property 2: OAuth Success Flow**
+  - **Property 28: Privacy-Compliant Scope Requests**
+  - **Validates: Requirements 1.3, 8.3**
 
-  - [x]* 2.3 Write property test for session management
-    - **Property 2: Session Lifecycle Management**
-    - **Validates: Requirements 1.5, 1.7, 8.5**
+- [ ] 3. Implement GitHub OAuth integration
+  - Create GitHub OAuth provider configuration
+  - Implement authorization flow with proper scopes
+  - Handle user data retrieval and account linking
+  - Add fallback error handling for provider unavailability
+  - _Requirements: 1.2, 1.3, 8.5_
 
-  - [x] 2.4 Implement email-based authentication flows
-    - Create email registration with verification
-    - Implement password reset functionality
-    - Add magic link login capability
-    - _Requirements: 1.2, 1.3, 1.4_
+- [ ]* 3.1 Write property tests for GitHub OAuth flow
+  - **Property 3: OAuth Error Handling**
+  - **Property 29: Graceful Service Degradation**
+  - **Validates: Requirements 1.4, 1.5, 8.5**
 
-  - [x] 2.5 Implement OAuth integration
-    - Set up Google OAuth 2.0 integration
-    - Set up GitHub OAuth integration
-    - Handle OAuth callback processing
-    - _Requirements: 1.1_
+- [ ] 4. Enhance password security system
+  - Implement secure password hashing with bcrypt
+  - Add password strength validation
+  - Implement rate limiting for login attempts
+  - Create secure password reset functionality
+  - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-  - [x]* 2.6 Write unit tests for OAuth edge cases
-    - Test OAuth failure scenarios
-    - Test account linking edge cases
-    - _Requirements: 1.1_
+- [ ]* 4.1 Write property tests for password security
+  - **Property 5: Password Validation Accuracy**
+  - **Property 6: Rate Limiting Protection**
+  - **Property 7: Secure Password Reset**
+  - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5**
 
-- [x] 3. User Management Service
-  - [x] 3.1 Implement user profile management
-    - Create user profile CRUD operations
-    - Implement preferences and settings management
-    - Add profile picture upload functionality
-    - _Requirements: 1.6_
-
-  - [x]* 3.2 Write property test for user data management
-    - **Property 17: User Data Management**
-    - **Validates: Requirements 1.6, 8.3**
-
-  - [x] 3.3 Implement role-based access control
-    - Create role and permission system
-    - Implement access control middleware
-    - Add admin functionality interfaces
-    - _Requirements: 8.2_
-
-- [x] 4. Checkpoint - Core Authentication Complete
+- [ ] 5. Checkpoint - Ensure authentication tests pass
   - Ensure all authentication tests pass, ask the user if questions arise.
 
-- [ ] 5. Subscription and Billing Service
-  - [x] 5.1 Implement subscription models and tiers
-    - Create Subscription, Plan, and Usage TypeScript interfaces
-    - Implement free and premium tier definitions
-    - Set up usage tracking infrastructure
-    - _Requirements: 2.1, 2.3, 2.5_
+- [ ] 6. Create enhanced media manager service
+  - Implement robust getUserMedia wrapper with error handling
+  - Add device enumeration and selection functionality
+  - Create permission state management
+  - Implement device change detection and handling
+  - _Requirements: 3.1, 3.2, 3.6_
 
-  - [x]* 5.2 Write property test for subscription enforcement
-    - **Property 3: Subscription Tier Enforcement**
-    - **Validates: Requirements 2.1, 2.3**
+- [ ]* 6.1 Write property tests for media permissions
+  - **Property 8: Media Permission Handling**
+  - **Property 10: Device Change Resilience**
+  - **Validates: Requirements 3.1, 3.2, 3.3, 3.6**
 
-  - [x]* 5.3 Write property test for usage tracking
-    - **Property 4: Usage Tracking Consistency**
-    - **Validates: Requirements 2.5, 3.5**
+- [ ] 7. Implement media control functionality
+  - Create camera toggle with proper track management
+  - Implement microphone toggle with UI state updates
+  - Add comprehensive error handling with user guidance
+  - Create device troubleshooting system
+  - _Requirements: 3.4, 3.5, 9.1, 9.2, 9.3, 9.4, 9.5_
 
-  - [x] 5.4 Integrate Stripe payment processing
-    - Set up Stripe SDK and webhook handling
-    - Implement subscription creation and management
-    - Add payment failure retry logic
-    - _Requirements: 2.4, 2.6_
+- [ ]* 7.1 Write property tests for media controls
+  - **Property 9: Media Control Consistency**
+  - **Property 11: Media Error Recovery**
+  - **Validates: Requirements 3.4, 3.5, 9.1, 9.2, 9.3, 9.4, 9.5**
 
-  - [x]* 5.5 Write property test for payment processing
-    - **Property 5: Payment Processing Reliability**
-    - **Validates: Requirements 2.4, 2.6**
+- [ ] 8. Build intelligent AI chat assistant
+  - Create context-aware response generation system
+  - Implement conversation history management
+  - Add performance data integration for personalized responses
+  - Create structured advice templates (STAR method, etc.)
+  - _Requirements: 4.1, 4.2, 4.3, 4.6, 7.1, 7.4_
 
-  - [x] 5.6 Implement usage limits and feature gating
-    - Create middleware for feature access control
-    - Implement usage limit enforcement
-    - Add upgrade prompt functionality
-    - _Requirements: 2.2, 2.7_
+- [ ]* 8.1 Write property tests for AI contextual responses
+  - **Property 12: Contextual Response Relevance**
+  - **Property 14: Conversation Context Continuity**
+  - **Validates: Requirements 4.1, 4.6, 7.1, 7.4**
 
-- [ ] 6. Interview Configuration Service
-  - [x] 6.1 Implement interview configuration models
-    - Create InterviewConfig, Question, and Session interfaces
-    - Implement configuration validation and storage
-    - Set up interview template system
-    - _Requirements: 3.1, 3.2_
+- [ ] 9. Implement personalized AI recommendations
+  - Create role and industry-specific response templates
+  - Implement weakness analysis and practice exercise generation
+  - Add performance data analysis for targeted advice
+  - Create example generation based on user background
+  - _Requirements: 4.2, 4.4, 4.5, 7.2, 7.3, 7.5_
 
-  - [x]* 6.2 Write property test for interview configuration
-    - **Property 6: Interview Configuration Persistence**
-    - **Validates: Requirements 3.1, 3.3**
+- [ ]* 9.1 Write property tests for AI personalization
+  - **Property 13: Personalized Recommendation Generation**
+  - **Property 15: Structured Advice Delivery**
+  - **Validates: Requirements 4.2, 4.4, 4.5, 7.2, 7.3, 7.5**
 
-  - [x] 6.3 Implement session control functionality
-    - Add pause, resume, and skip operations
-    - Implement time limit enforcement
-    - Create session state management
-    - _Requirements: 3.3, 3.4, 3.5_
+- [ ] 10. Checkpoint - Ensure media and AI tests pass
+  - Ensure all media and AI tests pass, ask the user if questions arise.
 
-  - [x] 6.4 Write property test for session control
+- [ ] 11. Create advanced speech recognition engine
+  - Implement Web Speech API wrapper with error handling
+  - Add multiple recognition engine support (Web Speech API, custom)
+  - Create confidence scoring and quality monitoring
+  - Implement real-time interim result processing
+  - _Requirements: 5.1, 5.5, 5.6, 6.1, 6.2, 10.4_
 
-    - **Property 7: Interview Session Control**
-    - **Validates: Requirements 3.4, 3.5**
+- [ ]* 11.1 Write property tests for speech recognition accuracy
+  - **Property 16: Transcription Accuracy Threshold**
+  - **Property 20: Confidence-Based Quality Control**
+  - **Property 21: Response Time Performance**
+  - **Validates: Requirements 5.1, 5.5, 5.6, 6.1, 6.2**
 
-- [ ] 7. AI Interview Service
-  - [x] 7.1 Implement AI interviewer core logic
-    - Create AI interviewer personality system
-    - Implement question generation using OpenAI API
-    - Add adaptive follow-up question logic
-    - _Requirements: 4.1, 4.2, 4.3_
+- [ ] 12. Implement speech recognition enhancements
+  - Add noise filtering and audio quality detection
+  - Implement accent and dialect adaptation
+  - Create domain-specific vocabulary loading
+  - Add speaker diarization for multi-speaker scenarios
+  - _Requirements: 5.2, 5.3, 5.4, 6.4, 10.1, 10.2_
 
-  - [x]* 7.2 Write property test for AI interviewer consistency
-    - **Property 8: AI Interviewer Consistency**
-    - **Validates: Requirements 4.1, 4.2, 4.3, 4.5**
+- [ ]* 12.1 Write property tests for speech enhancements
+  - **Property 17: Noise Resilience**
+  - **Property 18: Accent and Dialect Adaptation**
+  - **Property 19: Domain Vocabulary Recognition**
+  - **Property 23: Speaker Identification Accuracy**
+  - **Validates: Requirements 5.2, 5.3, 5.4, 6.4, 10.1, 10.2**
 
-  - [x] 7.3 Implement technical question evaluation
-    - Create technical accuracy assessment system
-    - Add role-specific evaluation criteria
-    - Implement difficulty adaptation logic
-    - _Requirements: 4.5, 4.6_
+- [ ] 13. Add speech recognition error handling and optimization
+  - Implement automatic retry logic for processing failures
+  - Create audio quality monitoring and user feedback
+  - Add offline speech recognition fallback
+  - Implement microphone positioning guidance
+  - _Requirements: 6.3, 6.5, 10.3, 10.5_
 
-  - [x]* 7.4 Write property test for technical evaluation
-    - **Property 9: Technical Accuracy Evaluation**
-    - **Validates: Requirements 4.6, 6.7**
+- [ ]* 13.1 Write property tests for speech error handling
+  - **Property 22: Error Recovery Resilience**
+  - **Property 24: Audio Quality Monitoring**
+  - **Property 26: Offline Capability Fallback**
+  - **Validates: Requirements 6.3, 6.5, 10.3, 10.5**
 
-- [x] 8. Checkpoint - Core Interview System Complete
-  - Ensure all interview system tests pass, ask the user if questions arise.
+- [ ] 14. Update interview interface with enhanced features
+  - Integrate new media manager into interview interface
+  - Connect enhanced speech recognition to transcript display
+  - Update UI with better error messaging and guidance
+  - Add real-time quality indicators and controls
+  - _Requirements: 3.1, 5.1, 6.1, 9.1_
 
-- [ ] 9. Real-time Communication Infrastructure
-  - [x] 9.1 Set up WebRTC signaling server
-    - Implement WebSocket-based signaling
-    - Add peer connection management
-    - Set up STUN/TURN server configuration
-    - _Requirements: Foundation for real-time features_
+- [ ]* 14.1 Write integration tests for interview interface
+  - Test end-to-end interview flow with new features
+  - Verify media controls work correctly during interviews
+  - Test speech recognition integration with transcript display
+  - _Requirements: 3.1, 5.1, 6.1_
 
-  - [x] 9.2 Implement media streaming service
-    - Create audio/video capture and streaming
-    - Add media recording functionality
-    - Implement real-time media processing pipeline
-    - _Requirements: 5.2, 5.3, 5.4_
+- [ ] 15. Enhance authentication UI components
+  - Update AuthForm component with OAuth buttons
+  - Add proper error handling and user feedback
+  - Implement loading states for OAuth flows
+  - Create password strength indicators
+  - _Requirements: 1.1, 1.2, 2.1, 2.4_
 
-  - [ ]* 9.3 Write unit tests for WebRTC functionality
-    - Test signaling server edge cases
-    - Test media streaming reliability
-    - _Requirements: Real-time communication foundation_
+- [ ]* 15.1 Write unit tests for authentication UI
+  - Test OAuth button functionality and error states
+  - Test password validation UI feedback
+  - Test loading states and error messaging
+  - _Requirements: 1.1, 1.2, 2.1, 2.4_
 
-- [ ] 10. Multi-Modal Analysis Service
-  - [x] 10.1 Implement text analysis engine
-    - Create content quality assessment
-    - Add keyword relevance analysis
-    - Implement STAR method structure evaluation
-    - _Requirements: 5.1, 5.5_
+- [ ] 16. Update AI chat component with enhanced intelligence
+  - Integrate new AI assistant service into chat component
+  - Add conversation context management
+  - Implement personalized response generation
+  - Create better user interaction patterns
+  - _Requirements: 4.1, 4.2, 4.6, 7.1_
 
-  - [x] 10.2 Implement speech analysis engine
-    - Add speech-to-text processing with Whisper API
-    - Create pace, pause, and filler word detection
-    - Implement clarity and confidence analysis
-    - _Requirements: 5.2, 5.3_
+- [ ]* 16.1 Write unit tests for enhanced AI chat
+  - Test context-aware response generation
+  - Test conversation continuity across sessions
+  - Test personalized recommendation display
+  - _Requirements: 4.1, 4.2, 4.6, 7.1_
 
-  - [x] 10.3 Implement emotion and facial analysis
-    - Integrate emotion detection from voice
-    - Add facial expression analysis using face-api.js
-    - Create confidence level assessment
-    - _Requirements: 5.3, 5.4_
+- [ ] 17. Add comprehensive error handling and user guidance
+  - Create error boundary components for graceful failures
+  - Implement user-friendly error messages with solutions
+  - Add troubleshooting guides for common issues
+  - Create fallback UI states for service failures
+  - _Requirements: 1.4, 3.3, 6.3, 9.1_
 
-  - [x]* 10.4 Write property test for multi-modal analysis
-    - **Property 10: Multi-Modal Response Analysis**
-    - **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5, 5.6**
+- [ ]* 17.1 Write tests for error handling
+  - Test error boundary functionality
+  - Test fallback UI states
+  - Test user guidance messaging
+  - _Requirements: 1.4, 3.3, 6.3, 9.1_
 
-  - [x] 10.5 Implement real-time analysis pipeline
-    - Create real-time feedback generation
-    - Add hesitation and nervousness detection
-    - Implement analysis result aggregation
-    - _Requirements: 5.6_
+- [ ] 18. Implement security enhancements
+  - Add CSRF protection for authentication endpoints
+  - Implement secure session management
+  - Add input validation and sanitization
+  - Create audit logging for security events
+  - _Requirements: 2.3, 8.1, 8.2, 8.4_
 
-- [ ] 11. Performance Reporting Service
-  - [x] 11.1 Implement report generation engine
-    - Create performance scoring algorithms
-    - Implement category-wise breakdown calculation
-    - Add timestamp and metadata tracking
-    - _Requirements: 6.1_
+- [ ]* 18.1 Write property tests for security features
+  - **Property 27: OAuth Token Security**
+  - Test CSRF protection mechanisms
+  - Test session security and token validation
+  - **Validates: Requirements 2.3, 8.1, 8.2, 8.4**
 
-  - [x]* 11.2 Write property test for report completeness
-    - **Property 11: Performance Report Completeness**
-    - **Validates: Requirements 6.1, 6.2, 6.3, 6.7**
+- [ ] 19. Final integration and testing
+  - Integrate all enhanced components into main application
+  - Test complete user flows from login to interview completion
+  - Verify all error scenarios are handled gracefully
+  - Ensure performance requirements are met
+  - _Requirements: All requirements_
 
-  - [x] 11.3 Implement visual report components
-    - Create color-coded transcript generation
-    - Add confidence vs content heatmaps
-    - Implement visual scoring displays
-    - _Requirements: 6.2, 6.3_
+- [ ]* 19.1 Write end-to-end integration tests
+  - Test complete OAuth authentication flows
+  - Test full interview session with all features
+  - Test AI chat integration with interview data
+  - Test error recovery across all components
+  - _Requirements: All requirements_
 
-  - [x] 11.4 Implement improvement recommendations
-    - Create personalized improvement plan generation
-    - Add better answer suggestion system
-    - Implement practice drill recommendations
-    - _Requirements: 6.5, 6.6, 7.2_
-
-  - [ ]* 11.5 Write property test for improvement recommendations
-    - **Property 12: Improvement Recommendations**
-    - **Validates: Requirements 6.5, 6.6, 7.2**
-
-- [ ] 12. Progress Tracking and Analytics
-  - [x] 12.1 Implement progress tracking system
-    - Create multi-session progress analysis
-    - Add trend analysis and visualization
-    - Implement benchmark comparison system
-    - _Requirements: 6.4, 6.8, 7.3_
-
-  - [ ]* 12.2 Write property test for progress tracking
-    - **Property 13: Progress Tracking and Comparison**
-    - **Validates: Requirements 6.4, 6.8, 7.3**
-
-  - [x] 12.3 Implement user engagement features
-    - Create notification system for progress milestones
-    - Add achievement recognition functionality
-    - Implement practice recommendations
-    - _Requirements: 7.4, 7.5, 7.6_
-
-  - [ ]* 12.4 Write property test for user engagement
-    - **Property 14: User Engagement Features**
-    - **Validates: Requirements 7.4, 7.6**
-
-- [ ] 13. Data Export and Sharing
-  - [x] 13.1 Implement report export functionality
-    - Add PDF export capability
-    - Create JSON/CSV export options
-    - Implement shareable link generation
-    - _Requirements: 6.9_
-
-  - [ ]* 13.2 Write property test for data export
-    - **Property 15: Data Export and Sharing**
-    - **Validates: Requirements 6.9**
-
-- [ ] 14. Security and Privacy Implementation
-  - [x] 14.1 Implement data encryption and security
-    - Add encryption for data at rest and in transit
-    - Implement audit logging system
-    - Create data retention policies
-    - _Requirements: 8.1, 8.6_
-
-  - [ ]* 14.2 Write property test for data security
-    - **Property 16: Data Security and Access Control**
-    - **Validates: Requirements 8.1, 8.2, 8.6**
-
-  - [x] 14.3 Implement privacy controls
-    - Create user data deletion functionality
-    - Add privacy settings management
-    - Implement GDPR compliance features
-    - _Requirements: 8.3_
-
-- [x] 15. Frontend Application Development
-  - [x] 15.1 Create React application structure
-    - Set up Next.js with TypeScript
-    - Implement routing and navigation
-    - Create responsive layout components
-    - _Requirements: User interface foundation_
-
-  - [x] 15.2 Implement authentication UI
-    - Create login, signup, and password reset forms
-    - Add OAuth integration buttons
-    - Implement session management UI
-    - _Requirements: 1.1, 1.2, 1.3, 1.4_
-
-  - [x] 15.3 Create interview interface
-    - Implement interview configuration UI
-    - Create real-time interview interface with WebRTC
-    - Add session control buttons (pause, resume, skip)
-    - _Requirements: 3.1, 3.4, 3.5, 4.1_
-
-  - [x] 15.4 Implement reporting and analytics UI
-    - Create performance report display
-    - Add progress tracking visualizations
-    - Implement export and sharing functionality
-    - _Requirements: 6.1, 6.2, 6.3, 6.8, 6.9_
-
-- [ ]* 15.5 Write integration tests for frontend
-  - Test end-to-end user flows
-  - Test real-time communication features
-  - _Requirements: Complete user experience_
-
-- [ ] 16. AI Follow-up Chat Service
-  - [x] 16.1 Implement AI chat functionality
-    - Create chat interface for feedback clarification
-    - Implement context-aware AI responses
-    - Add chat history and persistence
-    - _Requirements: 7.1_
-
-  - [ ]* 16.2 Write property test for AI chat
-    - **Property: AI chat responsiveness**
-    - **Validates: Requirements 7.1**
-
-- [ ] 17. Final Integration and Testing
-  - [x] 17.1 Integrate all services
-    - Wire together all microservices
-    - Implement service discovery and communication
-    - Add comprehensive error handling
-    - _Requirements: All requirements integration_
-
-  - [ ]* 17.2 Write end-to-end integration tests
-    - Test complete user journeys
-    - Test service communication reliability
-    - Test error recovery scenarios
-    - _Requirements: System reliability_
-
-  - [x] 17.3 Performance optimization and monitoring
-    - Add application performance monitoring
-    - Implement caching strategies
-    - Optimize database queries and API responses
-    - _Requirements: System performance_
-
-- [x] 18. Final Checkpoint - Complete System Validation
+- [ ] 20. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for faster MVP
 - Each task references specific requirements for traceability
-- Checkpoints ensure incremental validation throughout development
-- Property tests validate universal correctness properties using fast-check
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness properties
 - Unit tests validate specific examples and edge cases
-- The implementation follows microservices architecture for scalability
-- Real-time features use WebRTC for optimal performance
-- AI services integrate with OpenAI APIs for natural language processing
+- Integration tests verify end-to-end functionality
+- All implementations use TypeScript with Next.js framework
+- OAuth integration requires environment configuration for Google and GitHub
+- Speech recognition uses Web Speech API with fallback options
+- AI responses use context-aware generation with conversation memory
