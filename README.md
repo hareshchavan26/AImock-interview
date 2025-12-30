@@ -1,272 +1,338 @@
-# AI Mock Interview Platform
+# [SuperTest](https://ladjs.github.io/superagent/)
 
-A comprehensive AI-powered mock interview platform that provides realistic interview experiences with multi-modal analysis and detailed feedback.
+[![code coverage][coverage-badge]][coverage]
+[![Build Status][travis-badge]][travis]
+[![Dependencies][dependencies-badge]][dependencies]
+[![PRs Welcome][prs-badge]][prs]
+[![MIT License][license-badge]][license]
 
-## Features
+> HTTP assertions made easy via [superagent](http://github.com/ladjs/superagent).  Maintained for [Forward Email](https://github.com/forwardemail) and [Lad](https://github.com/ladjs).
 
-- **Realistic AI Interviews**: Conduct mock interviews with AI interviewers that adapt to your responses
-- **Multi-Modal Analysis**: Analyze text, speech, emotion, and facial expressions
-- **Comprehensive Feedback**: Get detailed performance reports with actionable insights
-- **Subscription Management**: Tiered pricing with usage-based billing
-- **Real-time Communication**: WebRTC-powered audio/video interviews
-- **Progress Tracking**: Monitor improvement over multiple sessions
-- **OAuth Integration**: Sign in with Google or GitHub
-- **Secure Authentication**: JWT-based authentication with refresh tokens
+## About
 
-## Architecture
+The motivation with this module is to provide a high-level abstraction for testing
+HTTP, while still allowing you to drop down to the [lower-level API](https://ladjs.github.io/superagent/) provided by superagent.
 
-The platform follows a microservices architecture with the following components:
+## Getting Started
 
-- **Frontend**: React/Next.js application with TypeScript
-- **API Gateway**: Nginx-based routing and load balancing
-- **Authentication Service**: User management and OAuth integration
-- **Interview Service**: AI-powered interview conductor
-- **Analysis Service**: Multi-modal response analysis
-- **Billing Service**: Stripe integration for subscriptions
-- **Database**: PostgreSQL with Redis caching
-- **Real-time**: WebRTC signaling and media streaming
-
-## Quick Start
-
-### Prerequisites
-
-- Node.js 18+ and npm 9+
-- Docker and Docker Compose
-- PostgreSQL 15+
-- Redis 7+
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd ai-mock-interview-platform
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env.development
-   # Edit .env.development with your configuration
-   ```
-
-4. **Start the development environment**
-   ```bash
-   # Start databases and services
-   npm run docker:up
-   
-   # Run database migrations
-   npm run db:migrate
-   
-   # Start development servers
-   npm run dev
-   ```
-
-5. **Access the application**
-   - Frontend: http://localhost:3001
-   - API Gateway: http://localhost:80
-   - Authentication Service: http://localhost:3001
-   - User Service: http://localhost:3002
-   - Interview Service: http://localhost:3003
-
-## Development
-
-### Project Structure
-
-```
-ai-mock-interview-platform/
-├── packages/                 # Shared packages
-│   ├── types/               # TypeScript type definitions
-│   └── utils/               # Shared utilities
-├── services/                # Microservices
-│   ├── auth/               # Authentication service
-│   ├── user/               # User management service
-│   ├── interview/          # Interview service
-│   ├── analysis/           # Analysis service
-│   ├── billing/            # Billing service
-│   ├── database/           # Database scripts
-│   └── api-gateway/        # Nginx configuration
-├── apps/                   # Frontend applications
-│   └── web/               # Next.js web application
-└── docker-compose.yml     # Development environment
-```
-
-### Available Scripts
-
-- `npm run dev` - Start all services in development mode
-- `npm run build` - Build all packages and services
-- `npm run test` - Run all tests
-- `npm run test:watch` - Run tests in watch mode
-- `npm run lint` - Lint all code
-- `npm run type-check` - Run TypeScript type checking
-- `npm run docker:up` - Start Docker services
-- `npm run docker:down` - Stop Docker services
-
-### Testing
-
-The project uses a comprehensive testing strategy:
-
-- **Unit Tests**: Jest for component and function testing
-- **Property-Based Tests**: fast-check for universal property validation
-- **Integration Tests**: End-to-end service communication testing
-
-Run tests:
-```bash
-# Run all tests
-npm run test
-
-# Run tests for specific package
-cd packages/utils && npm test
-
-# Run property-based tests
-npm run test -- --testNamePattern="Property"
-```
-
-### Database Management
+Install SuperTest as an npm module and save it to your package.json file as a development dependency:
 
 ```bash
-# Run migrations
-npm run db:migrate
-
-# Seed development data
-npm run db:seed
-
-# Reset database
-npm run docker:down && npm run docker:up
+npm install supertest --save-dev
 ```
 
-## Configuration
+  Once installed it can now be referenced by simply calling ```require('supertest');```
 
-### Environment Variables
+## Example
 
-Key environment variables (see `.env.example` for complete list):
+You may pass an `http.Server`, or a `Function` to `request()` - if the server is not
+already listening for connections then it is bound to an ephemeral port for you so
+there is no need to keep track of ports.
 
-- `DATABASE_URL` - PostgreSQL connection string
-- `REDIS_URL` - Redis connection string
-- `JWT_SECRET` - JWT signing secret
-- `OPENAI_API_KEY` - OpenAI API key for AI features
-- `STRIPE_SECRET_KEY` - Stripe secret key for payments
-- `GOOGLE_CLIENT_ID` - Google OAuth client ID
-- `GITHUB_CLIENT_ID` - GitHub OAuth client ID
+SuperTest works with any test framework, here is an example without using any
+test framework at all:
 
-### OAuth Setup
+```js
+const request = require('supertest');
+const express = require('express');
 
-1. **Google OAuth**:
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create a new project or select existing
-   - Enable Google+ API
-   - Create OAuth 2.0 credentials
-   - Add authorized redirect URIs
+const app = express();
 
-2. **GitHub OAuth**:
-   - Go to GitHub Settings > Developer settings > OAuth Apps
-   - Create a new OAuth App
-   - Set authorization callback URL
+app.get('/user', function(req, res) {
+  res.status(200).json({ name: 'john' });
+});
 
-### Stripe Setup
+request(app)
+  .get('/user')
+  .expect('Content-Type', /json/)
+  .expect('Content-Length', '15')
+  .expect(200)
+  .end(function(err, res) {
+    if (err) throw err;
+  });
+```
 
-1. Create a Stripe account
-2. Get your API keys from the Stripe dashboard
-3. Set up webhook endpoints for subscription events
-4. Configure subscription plans in the Stripe dashboard
+To enable http2 protocol, simply append an options to `request` or `request.agent`:
 
-## API Documentation
+```js
+const request = require('supertest');
+const express = require('express');
 
-### Authentication Endpoints
+const app = express();
 
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
-- `POST /api/auth/refresh` - Refresh access token
-- `POST /api/auth/forgot-password` - Request password reset
-- `POST /api/auth/reset-password` - Reset password
-- `GET /api/auth/oauth/google` - Google OAuth
-- `GET /api/auth/oauth/github` - GitHub OAuth
+app.get('/user', function(req, res) {
+  res.status(200).json({ name: 'john' });
+});
 
-### Interview Endpoints
+request(app, { http2: true })
+  .get('/user')
+  .expect('Content-Type', /json/)
+  .expect('Content-Length', '15')
+  .expect(200)
+  .end(function(err, res) {
+    if (err) throw err;
+  });
 
-- `POST /api/interviews` - Create interview session
-- `GET /api/interviews/:id` - Get interview session
-- `POST /api/interviews/:id/start` - Start interview
-- `POST /api/interviews/:id/responses` - Submit response
-- `POST /api/interviews/:id/pause` - Pause interview
-- `POST /api/interviews/:id/end` - End interview
+request.agent(app, { http2: true })
+  .get('/user')
+  .expect('Content-Type', /json/)
+  .expect('Content-Length', '15')
+  .expect(200)
+  .end(function(err, res) {
+    if (err) throw err;
+  });
+```
 
-### User Endpoints
+Here's an example with mocha, note how you can pass `done` straight to any of the `.expect()` calls:
 
-- `GET /api/users/profile` - Get user profile
-- `PUT /api/users/profile` - Update user profile
-- `GET /api/users/preferences` - Get user preferences
-- `PUT /api/users/preferences` - Update user preferences
+```js
+describe('GET /user', function() {
+  it('responds with json', function(done) {
+    request(app)
+      .get('/user')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200, done);
+  });
+});
+```
 
-## Deployment
+You can use `auth` method to pass HTTP username and password in the same way as in the [superagent](http://ladjs.github.io/superagent/#authentication):
 
-### Production Deployment
+```js
+describe('GET /user', function() {
+  it('responds with json', function(done) {
+    request(app)
+      .get('/user')
+      .auth('username', 'password')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200, done);
+  });
+});
+```
 
-1. **Build the application**
-   ```bash
-   npm run build
-   ```
+One thing to note with the above statement is that superagent now sends any HTTP
+error (anything other than a 2XX response code) to the callback as the first argument if
+you do not add a status code expect (i.e. `.expect(302)`).
 
-2. **Set up production environment variables**
-   ```bash
-   cp .env.example .env.production
-   # Configure production values
-   ```
+If you are using the `.end()` method `.expect()` assertions that fail will
+not throw - they will return the assertion as an error to the `.end()` callback. In
+order to fail the test case, you will need to rethrow or pass `err` to `done()`, as follows:
 
-3. **Deploy using Docker**
-   ```bash
-   docker-compose -f docker-compose.prod.yml up -d
-   ```
+```js
+describe('POST /users', function() {
+  it('responds with json', function(done) {
+    request(app)
+      .post('/users')
+      .send({name: 'john'})
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        return done();
+      });
+  });
+});
+```
 
-### Environment-Specific Configurations
+You can also use promises:
 
-- **Development**: Uses local databases, debug logging, relaxed rate limiting
-- **Staging**: Production-like environment with test data
-- **Production**: Optimized for performance, security, and scalability
+```js
+describe('GET /users', function() {
+  it('responds with json', function() {
+    return request(app)
+      .get('/users')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then(response => {
+         expect(response.body.email).toEqual('foo@bar.com');
+      })
+  });
+});
+```
 
-## Contributing
+Or async/await syntax:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass (`npm test`)
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
+```js
+describe('GET /users', function() {
+  it('responds with json', async function() {
+    const response = await request(app)
+      .get('/users')
+      .set('Accept', 'application/json')
+    expect(response.headers["Content-Type"]).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body.email).toEqual('foo@bar.com');
+  });
+});
+```
 
-### Code Style
+Expectations are run in the order of definition. This characteristic can be used
+to modify the response body or headers before executing an assertion.
 
-- Use TypeScript for all new code
-- Follow the existing ESLint configuration
-- Write tests for new functionality
-- Use conventional commit messages
-- Ensure code passes all linting and type checks
+```js
+describe('POST /user', function() {
+  it('user.name should be an case-insensitive match for "john"', function(done) {
+    request(app)
+      .post('/user')
+      .send('name=john') // x-www-form-urlencoded upload
+      .set('Accept', 'application/json')
+      .expect(function(res) {
+        res.body.id = 'some fixed id';
+        res.body.name = res.body.name.toLowerCase();
+      })
+      .expect(200, {
+        id: 'some fixed id',
+        name: 'john'
+      }, done);
+  });
+});
+```
+
+Anything you can do with superagent, you can do with supertest - for example multipart file uploads!
+
+```js
+request(app)
+  .post('/')
+  .field('name', 'my awesome avatar')
+  .field('complex_object', '{"attribute": "value"}', {contentType: 'application/json'})
+  .attach('avatar', 'test/fixtures/avatar.jpg')
+  ...
+```
+
+Passing the app or url each time is not necessary, if you're testing
+the same host you may simply re-assign the request variable with the
+initialization app or url, a new `Test` is created per `request.VERB()` call.
+
+```js
+request = request('http://localhost:5555');
+
+request.get('/').expect(200, function(err){
+  console.log(err);
+});
+
+request.get('/').expect('heya', function(err){
+  console.log(err);
+});
+```
+
+Here's an example with mocha that shows how to persist a request and its cookies:
+
+```js
+const request = require('supertest');
+const should = require('should');
+const express = require('express');
+const cookieParser = require('cookie-parser');
+
+describe('request.agent(app)', function() {
+  const app = express();
+  app.use(cookieParser());
+
+  app.get('/', function(req, res) {
+    res.cookie('cookie', 'hey');
+    res.send();
+  });
+
+  app.get('/return', function(req, res) {
+    if (req.cookies.cookie) res.send(req.cookies.cookie);
+    else res.send(':(')
+  });
+
+  const agent = request.agent(app);
+
+  it('should save cookies', function(done) {
+    agent
+    .get('/')
+    .expect('set-cookie', 'cookie=hey; Path=/', done);
+  });
+
+  it('should send cookies', function(done) {
+    agent
+    .get('/return')
+    .expect('hey', done);
+  });
+});
+```
+
+There is another example that is introduced by the file [agency.js](https://github.com/ladjs/superagent/blob/master/test/node/agency.js)
+
+Here is an example where 2 cookies are set on the request.
+
+```js
+agent(app)
+  .get('/api/content')
+  .set('Cookie', ['nameOne=valueOne;nameTwo=valueTwo'])
+  .send()
+  .expect(200)
+  .end((err, res) => {
+    if (err) {
+      return done(err);
+    }
+    expect(res.text).to.be.equal('hey');
+    return done();
+  });
+```
+
+## API
+
+You may use any [superagent](http://github.com/ladjs/superagent) methods,
+including `.write()`, `.pipe()` etc and perform assertions in the `.end()` callback
+for lower-level needs.
+
+### .expect(status[, fn])
+
+Assert response `status` code.
+
+### .expect(status, body[, fn])
+
+Assert response `status` code and `body`.
+
+### .expect(body[, fn])
+
+Assert response `body` text with a string, regular expression, or
+parsed body object.
+
+### .expect(field, value[, fn])
+
+Assert header `field` `value` with a string or regular expression.
+
+### .expect(function(res) {})
+
+Pass a custom assertion function. It'll be given the response object to check. If the check fails, throw an error.
+
+```js
+request(app)
+  .get('/')
+  .expect(hasPreviousAndNextKeys)
+  .end(done);
+
+function hasPreviousAndNextKeys(res) {
+  if (!('next' in res.body)) throw new Error("missing next key");
+  if (!('prev' in res.body)) throw new Error("missing prev key");
+}
+```
+
+### .end(fn)
+
+Perform the request and invoke `fn(err, res)`.
+
+## Notes
+
+Inspired by [api-easy](https://github.com/flatiron/api-easy) minus vows coupling.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT
 
-## Support
-
-For support and questions:
-
-- Create an issue in the GitHub repository
-- Check the documentation in the `/docs` folder
-- Review the API documentation
-
-## Roadmap
-
-- [ ] Mobile application (React Native)
-- [ ] Advanced AI personalities
-- [ ] Industry-specific interview templates
-- [ ] Team collaboration features
-- [ ] Advanced analytics dashboard
-- [ ] Integration with job boards
-- [ ] Video interview recording
-- [ ] AI-powered interview coaching
+[coverage-badge]: https://img.shields.io/codecov/c/github/ladjs/supertest.svg
+[coverage]: https://codecov.io/gh/ladjs/supertest
+[travis-badge]: https://travis-ci.org/ladjs/supertest.svg?branch=master
+[travis]: https://travis-ci.org/ladjs/supertest
+[dependencies-badge]: https://david-dm.org/ladjs/supertest/status.svg
+[dependencies]: https://david-dm.org/ladjs/supertest
+[prs-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
+[prs]: http://makeapullrequest.com
+[license-badge]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
+[license]: https://github.com/ladjs/supertest/blob/master/LICENSE
