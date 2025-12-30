@@ -1,35 +1,14 @@
-import { createApp, setupGracefulShutdown } from './app';
-import { initializeConnections } from './database/connection';
-import { config } from './config';
-import { logger } from './utils/logger';
+// Validation utilities
+export * from './validation';
 
-const startServer = async () => {
-  try {
-    logger.info('Starting Reporting Service', {
-      nodeEnv: config.nodeEnv,
-      port: config.port,
-    });
+// Authentication utilities
+export * from './auth';
 
-    // Initialize database connections
-    await initializeConnections();
+// Database utilities
+export * from './database';
 
-    // Create and start the Express app
-    const app = await createApp();
-    const server = app.listen(config.port, () => {
-      logger.info(`Reporting service listening on port ${config.port}`, {
-        port: config.port,
-        nodeEnv: config.nodeEnv,
-      });
-    });
+// API utilities
+export * from './api';
 
-    // Setup graceful shutdown
-    setupGracefulShutdown(server);
-
-  } catch (error) {
-    logger.error('Failed to start reporting service', { error });
-    process.exit(1);
-  }
-};
-
-// Start the server
-startServer();
+// Common utilities
+export * from './common';
